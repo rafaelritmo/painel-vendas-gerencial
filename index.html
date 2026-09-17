@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel Setembro — Vendas & Atendimentos</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root { --azul:#2563eb; --verde:#10b981; --laranja:#f59e0b; --verm:#ef4444; --roxo:#8b5cf6; --cian:#06b6d4;
           --bg:#f1f5f9; --card:#ffffff; --txt:#0f172a; --mut:#64748b; }
@@ -148,6 +149,10 @@ document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => {
 // Charts
 Chart.defaults.font.family = "'Segoe UI',system-ui,sans-serif";
 Chart.defaults.color = '#475569';
+Chart.register(ChartDataLabels);
+Chart.defaults.set('plugins.datalabels', { display: false }); // só gráficos que pedem
+
+const pctTotal = (v, arr) => (v * 100 / arr.reduce((a, b) => a + b, 0)).toFixed(1).replace('.', ',') + '%';
 const money = v => brl(v);
 const mk = (id, cfg) => new Chart(document.getElementById(id), cfg);
 const gridC = { color: '#e2e8f0' };
@@ -161,12 +166,16 @@ mk('c-vendasdia', { type:'bar', data:{ labels:D.vendasDia.labels, datasets:[
 mk('c-lojas', { type:'bar', data:{ labels:D.lojas.labels, datasets:[
   { label:'Pedido', data:D.lojas.pedidos, backgroundColor:'#2563eb', borderRadius:4 },
   { label:'Entrada', data:D.lojas.entradas, backgroundColor:'#10b981', borderRadius:4 }]},
-  options:{ indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{position:'top'}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+brlFull(c.parsed.x)}} },
+  options:{ indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{position:'top'}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+brlFull(c.parsed.x)}},
+    datalabels:{ anchor:'end', align:'right', color:'#334155', font:{weight:'bold', size:10},
+      formatter:(v,c)=>pctTotal(v, D.lojas.pedidos) } },
     scales:{ x:{ ticks:{callback:money}, grid:gridC }, y:{ grid:{display:false} } } }});
 
 mk('c-vend', { type:'bar', data:{ labels:D.vendedores.labels, datasets:[
   { label:'Vendido', data:D.vendedores.valores, backgroundColor:'#8b5cf6', borderRadius:4 }]},
-  options:{ indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>brlFull(c.parsed.x)}} },
+  options:{ indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>brlFull(c.parsed.x)}},
+    datalabels:{ anchor:'end', align:'right', color:'#334155', font:{weight:'bold', size:11},
+      formatter:(v)=>pctTotal(v, D.vendedores.valores) } },
     scales:{ x:{ ticks:{callback:money}, grid:gridC }, y:{ grid:{display:false} } } }});
 
 mk('c-atenddia', { type:'bar', data:{ labels:D.atendDia.labels, datasets:[
@@ -180,25 +189,36 @@ mk('c-atendhora', { type:'bar', data:{ labels:D.atendHora.labels, datasets:[
   { label:'Presencial', data:D.atendHora.presencial, backgroundColor:'#2563eb', borderRadius:3 },
   { label:'Online', data:D.atendHora.online, backgroundColor:'#10b981', borderRadius:3 },
   { label:'Externa', data:D.atendHora.externa, backgroundColor:'#f59e0b', borderRadius:3 }]},
-  options:{ maintainAspectRatio:false, plugins:{ legend:{position:'top'} },
+  options:{ maintainAspectRatio:false, plugins:{ legend:{position:'top'},
+    datalabels:{ display:c=>{ const i=c.dataIndex, tot=D.atendHora.presencial[i]+D.atendHora.online[i]+D.atendHora.externa[i]; return tot>0 && c.dataset.data[i]/tot > 0.12; },
+      color:'#fff', font:{weight:'bold', size:10}, textAlign:'center',
+      formatter:(v,c)=>{ const i=c.dataIndex, tot=D.atendHora.presencial[i]+D.atendHora.online[i]+D.atendHora.externa[i]; return (v*100/tot).toFixed(0)+'%'; } } },
     scales:{ x:{ stacked:true, grid:{display:false} }, y:{ stacked:true, grid:gridC } } }});
 
 mk('c-sup', { type:'doughnut', data:{ labels:D.supervisores.labels, datasets:[
   { data:D.supervisores.valores, backgroundColor:['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6'] }]},
-  options:{ maintainAspectRatio:false, plugins:{ legend:{position:'right'} } }});
+  options:{ maintainAspectRatio:false, plugins:{ legend:{position:'right'},
+    datalabels:{ display:c=>c.dataset.data[c.dataIndex] > 0, color:'#fff', font:{weight:'bold', size:12},
+      formatter:(v)=>pctTotal(v, D.supervisores.valores) } } }});
 
 mk('c-desf', { type:'doughnut', data:{ labels:D.desfechos.labels, datasets:[
   { data:D.desfechos.valores, backgroundColor:['#f59e0b','#ef4444','#dc2626','#8b5cf6','#10b981','#94a3b8'] }]},
-  options:{ maintainAspectRatio:false, plugins:{ legend:{position:'right'} } }});
+  options:{ maintainAspectRatio:false, plugins:{ legend:{position:'right'},
+    datalabels:{ display:c=>c.dataset.data[c.dataIndex] > 0, color:'#fff', font:{weight:'bold', size:13},
+      formatter:(v)=>pctTotal(v, D.desfechos.valores) } } }});
 
 mk('c-cfhora', { type:'bar', data:{ labels:D.cfHora.labels, datasets:[
   { label:'Ocorrências', data:D.cfHora.valores, backgroundColor:'#f97316', borderRadius:3 }]},
-  options:{ maintainAspectRatio:false, plugins:{ legend:{display:false} },
+  options:{ maintainAspectRatio:false, plugins:{ legend:{display:false},
+    datalabels:{ display:c=>c.dataset.data[c.dataIndex] > 0, anchor:'end', align:'top', color:'#334155', font:{weight:'bold', size:10},
+      formatter:(v)=>pctTotal(v, D.cfHora.valores) } },
     scales:{ x:{ grid:{display:false} }, y:{ grid:gridC } } }});
 
 mk('c-cfloja', { type:'bar', data:{ labels:D.cfLoja.labels, datasets:[
   { label:'Ocorrências', data:D.cfLoja.valores, backgroundColor:'#ef4444', borderRadius:3 }]},
-  options:{ maintainAspectRatio:false, plugins:{ legend:{display:false} },
+  options:{ maintainAspectRatio:false, plugins:{ legend:{display:false},
+    datalabels:{ anchor:'end', align:'right', color:'#334155', font:{weight:'bold', size:11},
+      formatter:(v)=>pctTotal(v, D.cfLoja.valores) } },
     scales:{ x:{ grid:{display:false} }, y:{ grid:gridC } } }});
 
 mk('c-entdia', { type:'bar', data:{ labels:D.entradasDia.labels, datasets:[
