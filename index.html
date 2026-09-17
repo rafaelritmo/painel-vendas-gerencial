@@ -166,14 +166,14 @@ mk('c-vendasdia', { type:'bar', data:{ labels:D.vendasDia.labels, datasets:[
 mk('c-lojas', { type:'bar', data:{ labels:D.lojas.labels, datasets:[
   { label:'Pedido', data:D.lojas.pedidos, backgroundColor:'#2563eb', borderRadius:4 },
   { label:'Entrada', data:D.lojas.entradas, backgroundColor:'#10b981', borderRadius:4 }]},
-  options:{ indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{position:'top'}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+brlFull(c.parsed.x)}},
+  options:{ indexAxis:'y', maintainAspectRatio:false, layout:{padding:{right:56}}, plugins:{ legend:{position:'top'}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+brlFull(c.parsed.x)}},
     datalabels:{ anchor:'end', align:'right', color:'#334155', font:{weight:'bold', size:10},
       formatter:(v,c)=>pctTotal(v, D.lojas.pedidos) } },
     scales:{ x:{ ticks:{callback:money}, grid:gridC }, y:{ grid:{display:false} } } }});
 
 mk('c-vend', { type:'bar', data:{ labels:D.vendedores.labels, datasets:[
   { label:'Vendido', data:D.vendedores.valores, backgroundColor:'#8b5cf6', borderRadius:4 }]},
-  options:{ indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>brlFull(c.parsed.x)}},
+  options:{ indexAxis:'y', maintainAspectRatio:false, layout:{padding:{right:56}}, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>brlFull(c.parsed.x)}},
     datalabels:{ anchor:'end', align:'right', color:'#334155', font:{weight:'bold', size:11},
       formatter:(v)=>pctTotal(v, D.vendedores.valores) } },
     scales:{ x:{ ticks:{callback:money}, grid:gridC }, y:{ grid:{display:false} } } }});
@@ -209,15 +209,15 @@ mk('c-desf', { type:'doughnut', data:{ labels:D.desfechos.labels, datasets:[
 
 mk('c-cfhora', { type:'bar', data:{ labels:D.cfHora.labels, datasets:[
   { label:'Ocorrências', data:D.cfHora.valores, backgroundColor:'#f97316', borderRadius:3 }]},
-  options:{ maintainAspectRatio:false, plugins:{ legend:{display:false},
-    datalabels:{ display:c=>c.dataset.data[c.dataIndex] > 0, anchor:'end', align:'top', color:'#334155', font:{weight:'bold', size:10},
+  options:{ maintainAspectRatio:false, layout:{padding:{top:24}}, plugins:{ legend:{display:false},
+    datalabels:{ display:c=>c.dataset.data[c.dataIndex] > 0, anchor:'end', align:'top', color:'#334155', font:{weight:'bold', size:9}, rotation:-90,
       formatter:(v)=>pctTotal(v, D.cfHora.valores) } },
     scales:{ x:{ grid:{display:false} }, y:{ grid:gridC } } }});
 
 mk('c-cfloja', { type:'bar', data:{ labels:D.cfLoja.labels, datasets:[
   { label:'Ocorrências', data:D.cfLoja.valores, backgroundColor:'#ef4444', borderRadius:3 }]},
-  options:{ maintainAspectRatio:false, plugins:{ legend:{display:false},
-    datalabels:{ anchor:'end', align:'right', color:'#334155', font:{weight:'bold', size:11},
+  options:{ maintainAspectRatio:false, layout:{padding:{top:24}}, plugins:{ legend:{display:false},
+    datalabels:{ anchor:'end', align:'top', color:'#334155', font:{weight:'bold', size:10},
       formatter:(v)=>pctTotal(v, D.cfLoja.valores) } },
     scales:{ x:{ grid:{display:false} }, y:{ grid:gridC } } }});
 
