@@ -209,17 +209,17 @@ mk('c-desf', { type:'doughnut', data:{ labels:D.desfechos.labels, datasets:[
 
 mk('c-cfhora', { type:'bar', data:{ labels:D.cfHora.labels, datasets:[
   { label:'Ocorrências', data:D.cfHora.valores, backgroundColor:'#f97316', borderRadius:3 }]},
-  options:{ maintainAspectRatio:false, layout:{padding:{top:24}}, plugins:{ legend:{display:false},
-    datalabels:{ display:c=>c.dataset.data[c.dataIndex] > 0, anchor:'end', align:'top', color:'#334155', font:{weight:'bold', size:9}, rotation:-90,
+  options:{ maintainAspectRatio:false, layout:{padding:{top:36}}, plugins:{ legend:{display:false},
+    datalabels:{ display:c=>c.dataset.data[c.dataIndex] > 0, anchor:'end', align:'top', clamp:true, clip:false, color:'#334155', font:{weight:'bold', size:9}, rotation:-90,
       formatter:(v)=>pctTotal(v, D.cfHora.valores) } },
-    scales:{ x:{ grid:{display:false} }, y:{ grid:gridC } } }});
+    scales:{ x:{ grid:{display:false} }, y:{ grid:gridC, grace:'12%' } } }});
 
 mk('c-cfloja', { type:'bar', data:{ labels:D.cfLoja.labels, datasets:[
   { label:'Ocorrências', data:D.cfLoja.valores, backgroundColor:'#ef4444', borderRadius:3 }]},
-  options:{ maintainAspectRatio:false, layout:{padding:{top:24}}, plugins:{ legend:{display:false},
-    datalabels:{ anchor:'end', align:'top', color:'#334155', font:{weight:'bold', size:10},
+  options:{ maintainAspectRatio:false, layout:{padding:{top:36}}, plugins:{ legend:{display:false},
+    datalabels:{ anchor:'end', align:'top', clamp:true, clip:false, color:'#334155', font:{weight:'bold', size:10},
       formatter:(v)=>pctTotal(v, D.cfLoja.valores) } },
-    scales:{ x:{ grid:{display:false} }, y:{ grid:gridC } } }});
+    scales:{ x:{ grid:{display:false}, ticks:{font:{size:11}, maxRotation:45, minRotation:45} }, y:{ grid:gridC, grace:'12%' } } }});
 
 mk('c-entdia', { type:'bar', data:{ labels:D.entradasDia.labels, datasets:[
   { label:'Entradas', data:D.entradasDia.n, backgroundColor:'#06b6d4', borderRadius:3 },
