@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload de Planilhas — Painel Gerencial</title>
+<style>
+  :root { --azul:#2563eb; --verde:#10b981; --verm:#ef4444; --bg:#f1f5f9; --card:#fff; --txt:#0f172a; --mut:#64748b; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; display:flex; flex-direction:column; }
+  header { background:linear-gradient(135deg,#1e3a8a,#2563eb); color:#fff; padding:22px 5%; }
+  header h1 { font-size:1.3rem; }
+  header p { opacity:.85; font-size:.9rem; margin-top:3px; }
+  main { flex:1; max-width:680px; width:100%; margin:0 auto; padding:30px 5% 40px; }
+  .card { background:var(--card); border-radius:14px; padding:26px; box-shadow:0 2px 12px rgba(15,23,42,.08); }
+  .drop { border:2px dashed #94a3b8; border-radius:12px; padding:38px 20px; text-align:center; cursor:pointer; transition:.15s; background:#f8fafc; }
+  .drop.over { border-color:var(--azul); background:#eff6ff; }
+  .drop .ico { font-size:2.4rem; }
+  .drop p { margin-top:8px; color:var(--mut); font-size:.95rem; }
+  .drop b { color:var(--azul); }
+  .files { margin-top:16px; }
+  .file { display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px; margin-top:8px; font-size:.9rem; }
+  .file .st { font-size:.8rem; font-weight:600; }
+  .st.ok { color:var(--verde); } .st.err { color:var(--verm); } .st.wait { color:var(--mut); }
+  button.enviar { width:100%; margin-top:20px; background:var(--azul); color:#fff; border:none; border-radius:10px; padding:14px; font-size:1rem; font-weight:600; cursor:pointer; }
+  button.enviar:disabled { background:#94a3b8; cursor:not-allowed; }
+  .msg { margin-top:14px; padding:12px 16px; border-radius:8px; font-size:.9rem; display:none; }
+  .msg.ok { display:block; background:#ecfdf5; border-left:4px solid var(--verde); }
+  .msg.err { display:block; background:#fef2f2; border-left:4px solid var(--verm); }
+  .instr { margin-top:18px; font-size:.85rem; color:var(--mut); line-height:1.6; }
+  .instr b { color:var(--txt); }
+  footer { text-align:center; color:var(--mut); font-size:.78rem; padding:16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📤 Upload de Planilhas</h1>
+  <p>Envie as planilhas atualizadas para o painel gerencial</p>
+</header>
+<main>
+  <div class="card">
+    <div class="drop" id="drop">
+      <div class="ico">📁</div>
+      <p><b>Arraste os arquivos aqui</b> ou clique para selecionar</p>
+      <p style="font-size:.8rem">Aceita .xlsx — até 4 planilhas por envio</p>
+    </div>
+    <input type="file" id="inp" multiple accept=".xlsx,.xlsm,.csv" style="display:none">
+    <div class="files" id="files"></div>
+    <button class="enviar" id="btn" disabled>Enviar planilhas</button>
+    <div class="msg" id="msg"></div>
+    <div class="instr">
+      <b>Como funciona:</b> ao enviar, os arquivos vão direto para o assistente, que processa e atualiza o painel automaticamente. Você não precisa fazer mais nada — em alguns minutos o site reflete os dados novos.<br><br>
+      <b>Planilhas esperadas:</b> Controle Mensal de Vendas · Contra Fluxo · Distribuição de Atendimentos · Fluxo de Entradas.
+    </div>
+  </div>
+</main>
+<footer>Painel Gerencial — uso interno</footer>
+<script>
+const WEBHOOK = "https://maestro.adapta.one/webhooks/generic/c2a4525560b764d8fbcdb9ecd150241db1707ff11f2025b48cfcb6f1c987fc53";
+const SECRET = "623e9545fc20046b55d8ac6b1f8cc9d406a91c7e6e3110504acd74150a72709d";
+const drop = document.getElementById('drop');
+const inp = document.getElementById('inp');
+const filesEl = document.getElementById('files');
+const btn = document.getElementById('btn');
+const msg = document.getElementById('msg');
+let files = [];
+
+drop.onclick = () => inp.click();
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); add(e.dataTransfer.files); };
+inp.onchange = () => add(inp.files);
+
+function add(list) {
+  for (const f of list) {
+    if (!/\.(xlsx|xlsm|csv)$/i.test(f.name)) continue;
+    if (files.some(x => x.name === f.name)) continue;
+    files.push(f);
+  }
+  render();
+}
+
+function render() {
+  filesEl.innerHTML = files.map((f, i) =>
+    `<div class="file"><span>📄 ${f.name}</span><span class="st wait" id="st-${i}">na fila</span></div>`).join('');
+  btn.disabled = files.length === 0;
+  msg.className = 'msg'; msg.textContent = '';
+}
+
+btn.onclick = async () => {
+  btn.disabled = true;
+  let ok = 0, fail = 0;
+  for (let i = 0; i < files.length; i++) {
+    const st = document.getElementById('st-' + i);
+    st.textContent = 'enviando…';
+    try {
+      const fd = new FormData();
+      fd.append('arquivo', files[i], files[i].name);
+      fd.append('origem', 'pagina-upload');
+      const r = await fetch(`${WEBHOOK}?secret=${SECRET}`, { method: 'POST', body: fd });
+      if (r.ok) { st.textContent = '✓ enviado'; st.className = 'st ok'; ok++; }
+      else { st.textContent = '✗ erro ' + r.status; st.className = 'st err'; fail++; }
+    } catch (e) {
+      st.textContent = '✗ falha de rede'; st.className = 'st err'; fail++;
+    }
+  }
+  msg.className = 'msg ' + (fail ? 'err' : 'ok');
+  msg.innerHTML = fail
+    ? `${ok} enviada(s), ${fail} com erro. Aguarde 1 minuto e reenvie as que falharam.`
+    : `✅ ${ok} planilha(s) enviada(s)! O painel será atualizado em alguns minutos.`;
+  files = [];
+  setTimeout(render, 4000);
+};
+</script>
+</body>
+</html>
