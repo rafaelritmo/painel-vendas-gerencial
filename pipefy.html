@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="1800">
+<title>CRM Pipefy — Funil de Vendas</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  :root { --azul:#2563eb; --verde:#10b981; --laranja:#f59e0b; --verm:#ef4444; --roxo:#8b5cf6;
+          --bg:#f1f5f9; --card:#ffffff; --txt:#0f172a; --mut:#64748b; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--txt); }
+  header { background:linear-gradient(135deg,#4c1d95,#8b5cf6); color:#fff; padding:28px 5% 20px; }
+  header h1 { font-size:1.7rem; font-weight:700; }
+  header p { opacity:.85; margin-top:4px; font-size:.95rem; }
+  .badge { display:inline-block; background:rgba(255,255,255,.18); border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:10px; margin-right:8px; }
+  header a { color:#fff; opacity:.9; font-size:.85rem; text-decoration:none; margin-top:8px; display:inline-block; }
+  main { max-width:1280px; margin:0 auto; padding:24px 4% 60px; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-top:-34px; }
+  .kpi { background:var(--card); border-radius:14px; padding:16px 18px; box-shadow:0 2px 10px rgba(15,23,42,.08); border-top:3px solid var(--roxo); }
+  .kpi:nth-child(2){border-top-color:var(--verde)} .kpi:nth-child(3){border-top-color:var(--azul)}
+  .kpi:nth-child(4){border-top-color:var(--laranja)} .kpi:nth-child(5){border-top-color:var(--verm)}
+  .kpi:nth-child(6){border-top-color:#06b6d4}
+  .kpi .lbl { font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--mut); font-weight:600; }
+  .kpi .val { font-size:1.45rem; font-weight:700; margin-top:4px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px; }
+  @media (max-width:900px){ .grid2 { grid-template-columns:1fr; } }
+  .box { background:var(--card); border-radius:14px; padding:18px 20px; box-shadow:0 2px 10px rgba(15,23,42,.08); }
+  .box h3 { font-size:.95rem; margin-bottom:4px; }
+  .box .sub { font-size:.8rem; color:var(--mut); margin-bottom:12px; }
+  .chart-wrap { position:relative; height:340px; }
+  table { width:100%; border-collapse:collapse; font-size:.86rem; }
+  th { text-align:left; color:var(--mut); font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; padding:8px 10px; border-bottom:2px solid #e2e8f0; }
+  td { padding:9px 10px; border-bottom:1px solid #f1f5f9; }
+  td.tt { font-weight:600; }
+  .chip { background:#ede9fe; color:#6d28d9; border-radius:12px; padding:2px 10px; font-size:.76rem; font-weight:600; white-space:nowrap; }
+  footer { text-align:center; color:var(--mut); font-size:.78rem; margin-top:36px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Pipefy CRM — Funil de Vendas</h1>
+  <p>Fluxo completo do funil: distribuição → atendimento → contrato → venda</p>
+  <span class="badge">⏱ Atualizado: 18/09/2026 17:09</span>
+  <span class="badge">Pipe: CRM (306445443)</span>
+  <span class="badge">🔄 Auto-refresh 30 min</span><br>
+  <a href="index.html">← Painel Vendas &amp; Atendimentos</a>
+</header>
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Cards no pipe</div><div class="val">1.788</div><div class="sub">histórico completo</div></div>
+    <div class="kpi"><div class="lbl">Novos hoje</div><div class="val">29</div><div class="sub">379 nos últimos 7 dias</div></div>
+    <div class="kpi"><div class="lbl">Idade média no funil</div><div class="val">24d 23h</div><div class="sub">desde a criação do card</div></div>
+    <div class="kpi"><div class="lbl">Atrasados</div><div class="val">0</div><div class="sub">sinalizados pelo Pipefy</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="box">
+      <h3>Funil — cards por fase</h3>
+      <div class="sub">Todos os cards no pipe, na ordem do processo</div>
+      <div class="chart-wrap"><canvas id="cFunil"></canvas></div>
+    </div>
+    <div class="box">
+      <h3>Tempo médio por fase</h3>
+      <div class="sub">Duração das passagens concluídas (amostra de history)</div>
+      <div class="chart-wrap"><canvas id="cTempo"></canvas></div>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:18px">
+    <h3>Novos cards por dia (últimos 14 dias)</h3>
+    <div class="sub">Entradas no funil — tendência de demanda</div>
+    <div class="chart-wrap" style="height:260px"><canvas id="cNovos"></canvas></div>
+  </div>
+
+  <div class="box" style="margin-top:18px">
+    <h3>Últimos movimentos</h3>
+    <div class="sub">Cards mais recentemente movimentados no funil</div>
+    <table>
+      <thead><tr><th>Quando</th><th>Card</th><th>Fase</th><th>Responsável</th></tr></thead>
+      <tbody><tr><td>18/09 16:44</td><td class='tt'>MC - Cremilda Santiago (11) 97016-9156</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 14:07</td><td class='tt'>RENATA ALMEIDA</td><td><span class='chip'>3-Enviado gerente</span></td><td>181 Felipe Fernandes</td></tr><tr><td>18/09 13:28</td><td class='tt'>MC - Marcio (11) 99172-2826</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 12:34</td><td class='tt'>MC - Carla (12) 99756-9557</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 12:01</td><td class='tt'>MC - Jose Paulo (19) 95322-3841</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 11:33</td><td class='tt'>MC - Val (15) 99255-1967</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 11:26</td><td class='tt'>MC - Francisco Bruno Macedo da Silva (</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 10:57</td><td class='tt'>MC - Cristiano (55) 11985-7475</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 10:39</td><td class='tt'>MC - Cleunice Pinto pedroso (11) 94003</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 10:35</td><td class='tt'>JOANNY</td><td><span class='chip'>3-Enviado gerente</span></td><td>Allan Kiche Almeida Silva</td></tr><tr><td>18/09 10:21</td><td class='tt'>MC - Gilmara (55) 11988-1096</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr><tr><td>18/09 09:54</td><td class='tt'>MC - SAMU (11) 96508-2854</td><td><span class='chip'>1-Distribuição</span></td><td>—</td></tr></tbody>
+    </table>
+  </div>
+</main>
+<footer>Página gerada automaticamente a cada hora via API do Pipefy · Grupo Ritmo</footer>
+<script>
+const D = {"funil": {"labels": ["1-Distribuição", "2-Contatar cliente", "3-Enviado gerente", "4-Atendimento inicial", "5-Novo agendamento", "6-Atendimento de Retorno", "7-Devolvido cap", "8-Geração de contrato", "9-Finalizar", "10-Não fechou", "11-Venda realizada", "12-Duplicidade", "13-Expirado/Substituído"], "vals": [1223, 22, 345, 90, 3, 5, 63, 17, 2, 12, 1, 5, 0]}, "tempo": {"labels": ["1-Distribuição", "2-Contatar cliente", "3-Enviado gerente", "4-Atendimento inicial", "5-Novo agendamento", "6-Atendimento de Retorno", "7-Devolvido cap", "8-Geração de contrato", "9-Finalizar"], "vals": [29.0, 7.4, 36.5, 287.1, 29.5, 127.6, 405.9, 0.4, 42.8], "n": [58, 42, 33, 19, 5, 3, 10, 2, 8]}, "novos": {"labels": ["05/09", "06/09", "07/09", "08/09", "09/09", "10/09", "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09"], "vals": [47, 28, 58, 91, 52, 47, 33, 23, 21, 67, 74, 68, 93, 29]}};
+new Chart(cFunil, { type:'bar', data:{ labels:D.funil.labels, datasets:[{ label:'Cards', data:D.funil.vals, backgroundColor:'#8b5cf6', borderRadius:4 }] },
+  options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
+    scales:{ x:{ grid:{color:'#f1f5f9'} }, y:{ grid:{display:false} } } } });
+new Chart(cTempo, { type:'bar', data:{ labels:D.tempo.labels, datasets:[{ label:'Horas', data:D.tempo.vals, backgroundColor:'#2563eb', borderRadius:4 }] },
+  options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>`${c.parsed.x.toFixed(1)}h (n=${D.tempo.n[c.dataIndex]})` } } },
+    scales:{ x:{ title:{display:true,text:'horas'}, grid:{color:'#f1f5f9'} }, y:{ grid:{display:false} } } } });
+new Chart(cNovos, { type:'line', data:{ labels:D.novos.labels, datasets:[{ label:'Novos cards', data:D.novos.vals, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.12)', fill:true, tension:.35, pointRadius:3 }] },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, grid:{color:'#f1f5f9'} }, x:{ grid:{display:false} } } } });
+</script>
+</body>
+</html>
