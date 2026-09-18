@@ -99,6 +99,17 @@ btn.onclick = async () => {
       fd.append('origem', 'pagina-upload');
       const r = await fetch(`${WEBHOOK}?secret=${SECRET}`, { method: 'POST', body: fd });
       if (r.ok) { st.textContent = '✓ enviado'; st.className = 'st ok'; ok++; }
+      else if (r.status === 503) {
+        // gateway ocupado — espera e tenta de novo (até 3x)
+        let tent = 0, done = false;
+        while (tent < 3 && !done) {
+          await new Promise(res => setTimeout(res, 20000));
+          const r2 = await fetch(`${WEBHOOK}?secret=${SECRET}`, { method: 'POST', body: fd });
+          if (r2.ok) { st.textContent = '✓ enviado'; st.className = 'st ok'; ok++; done = true; }
+          tent++;
+        }
+        if (!done) { st.textContent = '✗ erro 503'; st.className = 'st err'; fail++; }
+      }
       else { st.textContent = '✗ erro ' + r.status; st.className = 'st err'; fail++; }
     } catch (e) {
       st.textContent = '✗ falha de rede'; st.className = 'st err'; fail++;
