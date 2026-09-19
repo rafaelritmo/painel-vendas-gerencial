@@ -103,13 +103,18 @@ btn.onclick = async () => {
         bin += String.fromCharCode.apply(null, bytes.subarray(off, off + CH));
       }
       const payload = { arquivo_nome: files[i].name, conteudo_base64: btoa(bin), origem: 'pagina-upload' };
-      const r = await fetch(`${WEBHOOK}?secret=${SECRET}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (r.ok) { st.textContent = '✓ enviado'; st.className = 'st ok'; ok++; }
-      else { st.textContent = '✗ erro ' + r.status; st.className = 'st err'; fail++; }
+      // gateway não envia headers CORS → usa request simples (text/plain + no-cors)
+      try {
+        await fetch(`${WEBHOOK}?secret=${SECRET}`, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload)
+        });
+        st.textContent = '✓ enviado'; st.className = 'st ok'; ok++;
+      } catch (e2) {
+        st.textContent = '✗ erro de rede'; st.className = 'st err'; fail++;
+      }
     } catch (e) {
       st.textContent = '✗ falha de rede'; st.className = 'st err'; fail++;
     }
