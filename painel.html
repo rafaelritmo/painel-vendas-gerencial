@@ -124,9 +124,10 @@ const brl = v => v >= 1e6 ? 'R$ ' + (v/1e6).toFixed(2).replace('.',',') + 'M' : 
 const brlFull = v => 'R$ ' + v.toLocaleString('pt-BR', {maximumFractionDigits:0});
 
 // KPIs
+const PERIODO = '01–23/09';
 const kpiDefs = [
-  ['Vendido (01–16/09)', K.vendido, '133 pedidos'],
-  ['Entradas recebidas', K.entradas_recebidas, '28,7% do vendido'],
+  [`Vendido (${PERIODO})`, K.vendido, `${K.pedidos} pedidos`],
+  ['Entradas recebidas', K.entradas_recebidas, K.pct_ent + ' do vendido'],
   ['Ticket médio', K.ticket, 'por pedido'],
   ['Atendimentos', K.atendimentos, 'jul → set'],
   ['Contra fluxo', K.contra_fluxo, 'ocorrências em set'],
