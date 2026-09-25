@@ -17,6 +17,10 @@
   .badge { display:inline-block; background:rgba(255,255,255,.18); border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:10px; margin-right:8px; }
   header a { color:#fff; opacity:.9; font-size:.85rem; text-decoration:none; margin-top:8px; display:inline-block; }
   main { max-width:1280px; margin:0 auto; padding:24px 4% 60px; }
+  .btn-voltar { position:fixed; bottom:22px; right:22px; z-index:99; background:#1e293b; color:#fff; text-decoration:none;
+    padding:12px 20px; border-radius:30px; font-weight:600; font-size:.9rem; box-shadow:0 4px 14px rgba(15,23,42,.3);
+    display:flex; align-items:center; gap:8px; transition:transform .15s, background .15s; }
+  .btn-voltar:hover { background:#dc5738; transform:translateY(-2px); }
   .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-top:-34px; }
   .kpi { background:var(--card); border-radius:14px; padding:16px 18px; box-shadow:0 2px 10px rgba(15,23,42,.08); border-top:3px solid var(--roxo); }
   .kpi:nth-child(2){border-top-color:var(--verde)} .kpi:nth-child(3){border-top-color:var(--azul)}
@@ -36,18 +40,13 @@
   td.tt { font-weight:600; }
   .chip { background:#ede9fe; color:#6d28d9; border-radius:12px; padding:2px 10px; font-size:.76rem; font-weight:600; white-space:nowrap; }
   footer { text-align:center; color:var(--mut); font-size:.78rem; margin-top:36px; }
-
-  .btn-voltar { position:fixed; bottom:22px; right:22px; z-index:99; background:#1e293b; color:#fff; text-decoration:none;
-    padding:12px 20px; border-radius:30px; font-weight:600; font-size:.9rem; box-shadow:0 4px 14px rgba(15,23,42,.3);
-    display:flex; align-items:center; gap:8px; transition:transform .15s, background .15s; }
-  .btn-voltar:hover { background:#dc5738; transform:translateY(-2px); }
 </style>
 </head>
 <body>
 <header>
   <h1>Pipefy CRM — Funil de Vendas</h1>
   <p>Fluxo completo do funil: distribuição → atendimento → contrato → venda</p>
-  <span class="badge">⏱ Atualizado: 25/09/2026 03:15</span>
+  <span class="badge">⏱ Atualizado: 25/09/2026 03:31</span>
   <span class="badge">Pipe: CRM (306445443)</span>
   <span class="badge">🔄 Auto-refresh 30 min</span><br>
   <a href="index.html">← Painel Vendas &amp; Atendimentos</a>
@@ -100,7 +99,6 @@ new Chart(cTempo, { type:'bar', data:{ labels:D.tempo.labels, datasets:[{ label:
 new Chart(cNovos, { type:'line', data:{ labels:D.novos.labels, datasets:[{ label:'Novos cards', data:D.novos.vals, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.12)', fill:true, tension:.35, pointRadius:3 }] },
   options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, grid:{color:'#f1f5f9'} }, x:{ grid:{display:false} } } } });
 </script>
-
 <a class="btn-voltar" href="index.html">← Voltar ao início</a>
 </body>
 </html>
