@@ -43,6 +43,11 @@
   .chartbox.tall { height:400px; }
   footer { text-align:center; color:var(--mut); font-size:.8rem; padding:20px; }
   .alerta { background:#fef2f2; border-left:4px solid var(--verm); border-radius:8px; padding:12px 16px; font-size:.88rem; margin-top:14px; }
+
+  .btn-voltar { position:fixed; bottom:22px; right:22px; z-index:99; background:#1e293b; color:#fff; text-decoration:none;
+    padding:12px 20px; border-radius:30px; font-weight:600; font-size:.9rem; box-shadow:0 4px 14px rgba(15,23,42,.3);
+    display:flex; align-items:center; gap:8px; transition:transform .15s, background .15s; }
+  .btn-voltar:hover { background:#dc5738; transform:translateY(-2px); }
 </style>
 </head>
 <body>
@@ -236,5 +241,7 @@ mk('c-tempo', { type:'bar', data:{ labels:D.tempoLoja.labels, datasets:[
       y:{ position:'left', title:{display:true,text:'min'}, grid:gridC },
       y1:{ position:'right', min:0, max:100, grid:{drawOnChartArea:false}, ticks:{callback:v=>v+'%'} } } }});
 </script>
+
+<a class="btn-voltar" href="index.html">← Voltar ao início</a>
 </body>
 </html>
